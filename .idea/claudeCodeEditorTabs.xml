@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ClaudeCodeEditorTabs">
+    <option name="activeSessionId" value="45db3d7f-bc37-40df-bce8-5e534c62b814" />
+    <option name="openSessionIds">
+      <list>
+        <option value="45db3d7f-bc37-40df-bce8-5e534c62b814" />
+      </list>
+    </option>
+    <option name="sessionPaths">
+      <map>
+        <entry key="45db3d7f-bc37-40df-bce8-5e534c62b814" value="/sessions/70c6181c-c8ed-4636-b6cb-089a4a126067" />
+      </map>
+    </option>
+    <option name="sessionTitles">
+      <map>
+        <entry key="45db3d7f-bc37-40df-bce8-5e534c62b814" value="An enclosing instance of type Menu is not in scope" />
+      </map>
+    </option>
+  </component>
+</project>
