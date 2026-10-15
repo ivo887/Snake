@@ -31,7 +31,10 @@ public class SnakeGame extends JFrame {
     private int foodX;
     private int foodY;
     private int score;
+    private static int highScore;
     private boolean gameOver;
+    private boolean started;
+    private boolean paused;
 
     public SnakeGame() {
         super("Snake");
@@ -60,8 +63,21 @@ public class SnakeGame extends JFrame {
         dy = nextDy = 0;
         score = 0;
         gameOver = false;
+        paused = false;
         placeFood();
+        board.repaint();
+    }
+
+    private void start() {
+        reset();
+        started = true;
         timer.start();
+    }
+
+    private void endGame() {
+        gameOver = true;
+        highScore = Math.max(highScore, score);
+        timer.stop();
         board.repaint();
     }
 
@@ -82,22 +98,42 @@ public class SnakeGame extends JFrame {
     }
 
     private void handleKey(int key) {
+        if (key == KeyEvent.VK_ESCAPE) {
+            timer.stop();
+            new Menu().setVisible(true);
+            dispose();
+            return;
+        }
+        if (!started || gameOver) {
+            if (key == KeyEvent.VK_SPACE) {
+                start();
+            }
+            return;
+        }
+        if (key == KeyEvent.VK_P) {
+            paused = !paused;
+            if (paused) {
+                timer.stop();
+            } else {
+                timer.start();
+            }
+            board.repaint();
+            return;
+        }
+        if (paused) {
+            return;
+        }
         switch (key) {
             case KeyEvent.VK_UP, KeyEvent.VK_W -> turn(0, -1);
             case KeyEvent.VK_DOWN, KeyEvent.VK_S -> turn(0, 1);
             case KeyEvent.VK_LEFT, KeyEvent.VK_A -> turn(-1, 0);
             case KeyEvent.VK_RIGHT, KeyEvent.VK_D -> turn(1, 0);
-            case KeyEvent.VK_SPACE -> {
-                if (gameOver) {
-                    reset();
-                }
-            }
             default -> { }
         }
     }
 
     private void turn(int newDx, int newDy) {
-        if (newDx == -dx && newDy == -dy) {
+        if (nextDx != dx || nextDy != dy || (newDx == -dx && newDy == -dy)) {
             return;
         }
         nextDx = newDx;
@@ -108,14 +144,12 @@ public class SnakeGame extends JFrame {
         dx = nextDx;
         dy = nextDy;
         int[] head = snake.get(0);
-        int nx = head[0] + dx;
-        int ny = head[1] + dy;
+        int nx = (head[0] + dx + COLS) % COLS;
+        int ny = (head[1] + dy + ROWS) % ROWS;
 
         boolean eating = nx == foodX && ny == foodY;
-        if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS || hitsBody(nx, ny, eating)) {
-            gameOver = true;
-            timer.stop();
-            board.repaint();
+        if (checkCollision(nx, ny, eating)) {
+            endGame();
             return;
         }
 
@@ -123,8 +157,7 @@ public class SnakeGame extends JFrame {
         if (eating) {
             score++;
             if (snake.size() == COLS * ROWS) {
-                gameOver = true;
-                timer.stop();
+                endGame();
             } else {
                 placeFood();
             }
@@ -134,7 +167,7 @@ public class SnakeGame extends JFrame {
         board.repaint();
     }
 
-    private boolean hitsBody(int x, int y, boolean growing) {
+    private boolean checkCollision(int x, int y, boolean growing) {
         int limit = growing ? snake.size() : snake.size() - 1;
         for (int i = 0; i < limit; i++) {
             int[] p = snake.get(i);
@@ -155,6 +188,23 @@ public class SnakeGame extends JFrame {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+            g.setColor(new Color(30, 30, 30));
+            for (int i = 0; i <= COLS; i++) {
+                g.drawLine(i * CELL, 0, i * CELL, ROWS * CELL);
+            }
+            for (int i = 0; i <= ROWS; i++) {
+                g.drawLine(0, i * CELL, COLS * CELL, i * CELL);
+            }
+
+            if (!started) {
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Segoe UI", Font.BOLD, 32));
+                g.drawString("Snake", COLS * CELL / 2 - 45, ROWS * CELL / 2);
+                g.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+                g.drawString("Press SPACE to start", COLS * CELL / 2 - 75, ROWS * CELL / 2 + 28);
+                return;
+            }
+
             g.setColor(Color.RED);
             g.fillOval(foodX * CELL, foodY * CELL, CELL, CELL);
 
@@ -166,13 +216,19 @@ public class SnakeGame extends JFrame {
 
             g.setColor(Color.WHITE);
             g.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            g.drawString("Score: " + score, 8, 18);
+            g.drawString("Score: " + score + "   High: " + highScore, 8, 18);
+
+            if (paused) {
+                g.setFont(new Font("Segoe UI", Font.BOLD, 32));
+                g.drawString("Paused", COLS * CELL / 2 - 55, ROWS * CELL / 2);
+            }
 
             if (gameOver) {
                 g.setFont(new Font("Segoe UI", Font.BOLD, 32));
                 g.drawString("Game Over", COLS * CELL / 2 - 85, ROWS * CELL / 2);
                 g.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-                g.drawString("Press SPACE to restart", COLS * CELL / 2 - 80, ROWS * CELL / 2 + 28);
+                g.drawString("Final score: " + score, COLS * CELL / 2 - 45, ROWS * CELL / 2 + 28);
+                g.drawString("SPACE: new game   ESC: menu", COLS * CELL / 2 - 105, ROWS * CELL / 2 + 52);
             }
         }
     }

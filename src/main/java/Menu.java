@@ -3,6 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
+import java.awt.event.*;
+import javax.swing.*;
+
 /**
  *
  * @author VelinaKostova
@@ -16,7 +19,15 @@ public class Menu extends javax.swing.JFrame {
      */
     public Menu() {
         initComponents();
-        btnNewGame.addActionListener(e -> new SnakeGame().setVisible(true));
+        setLocationRelativeTo(null);
+        btnNewGame.addActionListener(e -> {
+            new SnakeGame().setVisible(true);
+            Menu.this.dispose();
+        });
+
+
+
+
     }
 
     /**
