@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Snake Completion Plan</title>
+<meta name="description" content="Step-by-step plan to finish the Java Snake game, with switches for the optional features.">
+<style>
+:root{
+  --bg:#f5f7f3;--card:#ffffff;--ink:#17261b;--mute:#58695c;--line:#dce3da;
+  --accent:#2c8a4b;--accent-ink:#ffffff;--chip:#e8f2ea;--warn:#a96a0c;--warn-bg:#fbf1dd;--off:#c6cfc6;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0e1410;--card:#162019;--ink:#e5eee7;--mute:#92a595;--line:#263329;
+  --accent:#4cc473;--accent-ink:#06210f;--chip:#1c2b21;--warn:#e3b45e;--warn-bg:#2b2412;--off:#3a473d}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px 64px}
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:920px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar h1{font-size:18px;margin:0;flex:1 1 auto;white-space:nowrap}
+.bar a.repo{color:var(--mute);font-size:14px;text-decoration:none}
+.bar a.repo:hover{color:var(--accent)}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.menuwrap{position:relative}
+.menu{position:absolute;right:0;top:calc(100% + 8px);width:min(360px,calc(100vw - 32px));background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:12px;display:none}
+.menu.open{display:block}
+.menu h3{margin:4px 4px 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.menu .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 4px;border-radius:6px}
+.menu .row small{color:var(--mute);display:block;font-size:12px;line-height:1.3}
+.menu hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.switch{position:relative;display:inline-block;width:40px;height:22px;flex:none}
+.switch input{opacity:0;position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.switch i{position:absolute;inset:0;background:var(--off);border-radius:22px;transition:background .15s}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.switch input:checked + i{background:var(--accent)}
+.switch input:checked + i::after{transform:translateX(18px)}
+.switch input:disabled{cursor:not-allowed}
+.switch input:disabled + i{opacity:.55}
+.switch input:focus-visible + i{outline:2px solid var(--accent);outline-offset:2px}
+.hero{padding:28px 0 8px}
+.hero h2{font-size:28px;margin:0 0 6px;line-height:1.2}
+.hero p{margin:0;color:var(--mute);max-width:62ch}
+.progress{margin:18px 0 6px;display:flex;align-items:center;gap:12px}
+.track{flex:1;height:10px;background:var(--line);border-radius:10px;overflow:hidden}
+.fill{height:100%;background:var(--accent);width:0;transition:width .25s}
+.pct{font-weight:700;min-width:48px;text-align:right}
+.meta{color:var(--mute);font-size:14px}
+.next{margin:16px 0 4px;background:var(--chip);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px}
+.next b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:2px}
+.status{margin:14px 0 0;background:var(--warn-bg);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:12px 14px;font-size:14px}
+.status b{color:var(--warn)}
+.status ul{margin:6px 0 0;padding-left:20px}
+h2.sec{font-size:20px;margin:34px 0 12px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 14px;overflow:hidden}
+.step.off{opacity:.6}
+.step>header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.step.off>header{border-bottom:0}
+.num{flex:none;width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:15px}
+.step.off .num{background:var(--off)}
+.step header .t{flex:1;min-width:0}
+.step header h3{margin:0;font-size:17px;line-height:1.25}
+.step header p{margin:2px 0 0;color:var(--mute);font-size:14px}
+.count{font-size:13px;color:var(--mute);white-space:nowrap}
+.lock{font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:20px;padding:1px 8px;white-space:nowrap}
+.item{padding:12px 16px;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item .head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item .head h4{margin:0;font-size:15px}
+.id{font-size:12px;color:var(--mute);background:var(--chip);border-radius:6px;padding:0 6px}
+.chip{font-size:12px;border-radius:20px;padding:1px 9px;border:1px solid var(--line);color:var(--mute)}
+.chip.done{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip.doing{border-color:var(--warn);color:var(--warn)}
+.detail{margin:6px 0 4px;font-size:14px;color:var(--mute)}
+.detail b{color:var(--ink);font-weight:600}
+.tasks{list-style:none;margin:8px 0 0;padding:0}
+.tasks li{display:flex;gap:10px;align-items:flex-start;padding:3px 0}
+.tasks input{margin-top:5px;accent-color:var(--accent);width:16px;height:16px;flex:none;cursor:pointer}
+.tasks label{cursor:pointer;font-size:15px}
+.tasks input:checked + label{color:var(--mute);text-decoration:line-through}
+.hide-done .item.complete{display:none}
+.hide-done .step.allcomplete .item{display:none}
+.nodetail .detail{display:none}
+.tablewrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:700px;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);background:var(--chip)}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--mute);width:36px}
+td.nm{font-weight:600;min-width:110px}
+.empty{padding:18px;color:var(--mute)}
+footer{margin-top:40px;color:var(--mute);font-size:13px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+@media (max-width:560px){.hero h2{font-size:23px}.bar h1{font-size:16px}.bar a.repo{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <h1>🐍 Snake Plan</h1>
+    <a class="repo" href="https://github.com/ivo887/Snake">github.com/ivo887/Snake</a>
+    <div class="menuwrap">
+      <button class="btn primary" id="menuBtn" aria-haspopup="true" aria-expanded="false">Features ▾</button>
+      <div class="menu" id="menu" role="menu"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <section class="hero">
+    <h2>Finish the Snake game, one step at a time</h2>
+    <p>Switch optional features on or off in the <b>Features</b> menu. Disabled steps drop out of the plan, the backlog table and the progress bar. Ticks are saved in this browser.</p>
+    <div class="progress"><div class="track"><div class="fill" id="fill"></div></div><div class="pct" id="pct">0%</div></div>
+    <div class="meta" id="meta"></div>
+    <div class="next" id="next"></div>
+    <div class="status">
+      <b>Where the code is now (SnakeGame.java)</b>
+      <ul>
+        <li>Snake, apple, score, booster with speed and colour effects, Start, Pause and Finish buttons all work.</li>
+        <li><code>checkCollision()</code> exists but is never called, so the game cannot end by crashing.</li>
+        <li>Start after Pause resets the game, so there is no real resume.</li>
+        <li>Apples and boosters only spawn in the first 550 px of the 650 px board and a booster can land on the apple.</li>
+        <li>Two quick key presses in one tick can turn the snake back into itself.</li>
+      </ul>
+    </div>
+  </section>
+
+  <h2 class="sec">Step-by-step plan</h2>
+  <div id="steps"></div>
+
+  <h2 class="sec">Product backlog</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Name</th><th>How to demo</th><th>Notes</th><th>Status</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+
+  <footer>
+    <button class="btn" id="copyMd">Copy plan as Markdown</button>
+    <button class="btn" id="reset">Reset progress</button>
+    <span>Possible advanced topics: JUnit testing, Git branching workflows, file I/O (save/load), Java Sound API.</span>
+  </footer>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- data ---------- */
+var ITEMS = {
+  1:{n:"Display game board",d:"Launch the app; the game board is displayed clearly in the GUI.",o:"Display a grid of tiles with a visible background.",
+     t:[["Create a JFrame with a GamePanel and 25 px tiles",1],["Draw a visible tile grid (currently only a black background)",0]]},
+  2:{n:"Start a new game",d:"Click Start; the snake appears on an empty board and the game begins.",o:"Reset snake, score, apple and booster, and initialise the game state.",
+     t:[["Start button resets snake, score, apple and booster",1],["Show a start screen instead of \"Game Over\" at launch",0]]},
+  3:{n:"Move the snake",d:"Press W, A, S, D; the snake changes direction and moves every tick.",o:"The snake cannot reverse directly into itself.",
+     t:[["Map W/A/S/D to directions",1],["Move the snake every timer tick",1],["Allow only one direction change per tick so a quick double key press cannot reverse the snake",0]]},
+  4:{n:"Place apples",d:"Start a game; an apple appears on a free tile. After it is eaten, a new one appears elsewhere.",o:"An apple must never spawn on the snake.",
+     t:[["Spawn the apple on a free tile",1],["Spawn over the whole board (currently limited to 550 px)",0]]},
+  5:{n:"Eat apple and grow",d:"Move the snake onto an apple; the apple disappears and the snake gets longer.",o:"Increase body length by one segment per apple.",
+     t:[["Detect the head on the apple tile",1],["Grow the snake by one segment",1]]},
+  6:{n:"Track score",d:"Eat several apples; the score shown on screen increases with each one.",o:"Reset the score on a new game.",
+     t:[["Show the score in the top-left corner",1],["Reset the score on a new game",1],["Keep a high score for the session",0]]},
+  9:{n:"Pause and resume",d:"Click Pause; the snake stops. Click Start or press a key to continue.",o:"Stop and restart the game timer without losing state.",
+     t:[["Pause button stops the timer",1],["Add Resume that keeps score and snake (Start currently resets everything)",0],["Press P to toggle pause",0]]},
+  11:{n:"Detect collision",d:"Steer the snake into itself (or into a wall when looping is off); the game ends.",o:"Check head against body and, if enabled, board edges.",
+     t:[["Write checkCollision() for body and walls",1],["Call it from actionPerformed after every move",0],["Stop the timer and show Game Over when it returns true",0]]},
+  18:{n:"End the game",d:"Crash or click Finish; the final score is displayed and further moves are stopped.",o:"Offer to start a new game or exit.",
+     t:[["Show the final score on the game-over screen",0],["Ignore key presses after game over",0],["Offer New Game and Exit instead of closing straight away on Finish",0]]},
+  7:{n:"Place boosters",d:"Start a game; a booster appears on a free tile, separate from the apple.",o:"A booster must never spawn on the snake or the apple.",
+     t:[["Spawn the booster on a tile free of the snake",1],["Also avoid the apple tile",0],["Spawn over the whole board",0]]},
+  8:{n:"Booster effects",d:"Collect a booster; the speed changes (faster or slower) and the background colour flashes.",o:"The effect is random and lasts 5 seconds, then speed and colour reset.",
+     t:[["Random effect: fast (100 ms) or slow (300 ms)",1],["Flash the background colour while active",1],["Reset speed and colour after 5 seconds",1]]},
+  10:{n:"Looping borders",d:"Steer the snake into a wall; it re-enters on the opposite side of the board.",o:"Wrap x and y coordinates. Add a setting to switch between looping and solid walls.",
+     t:[["Add a loopingBorders setting",0],["Wrap the head x and y with modulo in Snake.move()",0],["Skip the wall check in checkCollision() when looping is on",0],["Add a checkbox for it in the in-game menu",0]]},
+  16:{n:"Game music",d:"Start a game; background music plays. Toggle it with a mute button.",o:"Loop the music and stop it on pause and game over.",
+     t:[["Add a MusicPlayer class using javax.sound.sampled.Clip",0],["Add a .wav file under resources/",0],["Loop on start; stop on pause and game over",0],["Add a mute button",0]]},
+  17:{n:"Interaction sounds",d:"Eat an apple, collect a booster, or crash; each plays a different sound effect.",o:"Sound effects must not interrupt the music; include a mute option.",
+     t:[["Create short .wav files for apple, booster and crash",0],["Play effects on their own Clip so the music keeps going",0],["Call them from the eat, booster and collision code",0],["Add a mute-effects option",0]]},
+  12:{n:"Build board",d:"Open the Board Builder; choose the board size and add or remove obstacle tiles on a grid.",o:"Custom boards must remain playable (the snake's start area stays free).",
+     t:[["Create a BoardBuilder window with a clickable grid",0],["Let the player choose the board size",0],["Toggle obstacle tiles on and off",0],["Reject boards that block the snake's start area",0],["Treat obstacles as collisions in the game",0]]},
+  13:{n:"Place apples and boosters in builder",d:"In the Board Builder, click a tile to place an apple or booster at a fixed position.",o:"Fixed positions are used at game start; random spawning continues after that.",
+     t:[["Add apple and booster tools to the builder",0],["Store the fixed positions in the board model",0],["Use them at game start, then switch to random spawning",0]]},
+  14:{n:"Save game",d:"During a game, click Save; the current state is stored under a chosen save name.",o:"Store snake position, direction, apple, booster, score, board layout and settings.",
+     t:[["Create a GameState class with snake, direction, apple, booster, score, board and settings",0],["Write it to a file (Serializable or a simple text format)",0],["Add a Save button that asks for a save name",0]]},
+  15:{n:"Choose game save",d:"Click Load; a list of saves is shown. Select one and the game resumes exactly where it was saved.",o:"Show the save name and date, and handle missing or corrupted files.",
+     t:[["Keep all saves in a saves/ folder",0],["Add a Load dialog listing name and date",0],["Show an error for missing or corrupted files",0],["Restore the state and resume the game",0]]},
+  19:{n:"JUnit tests",d:"Run the tests from the IDE or build tool; all of them pass.",o:"Test the logic classes, not the Swing drawing.",
+     t:[["Add JUnit 5 to the project (Maven or Gradle)",0],["Test movement and the no-reverse rule",0],["Test collision, including wrapping when looping is on",0],["Test that apples and boosters never spawn on the snake",0],["Test the save and load round trip",0]]},
+  20:{n:"Git branching workflow",d:"Open the repo on GitHub; each feature has its own branch and a merged pull request.",o:"main stays playable; work happens on feature branches.",
+     t:[["Protect main and create a develop branch",0],["Use one feature/<name> branch per backlog item",0],["Merge through pull requests with a short description",0],["Tag a release when each step is done",0]]}
+};
+var PHASES = [
+  {id:"git",   title:"Git workflow",       desc:"Set up branches first so every later step is a small pull request.", items:[20]},
+  {id:"core",  title:"Core gameplay",      desc:"Make the basic game solid: controls, collision, pause and game over.", items:[1,2,3,4,5,6,9,11,18], locked:true},
+  {id:"boost", title:"Boosters",           desc:"Random speed and colour effects from a booster tile.", items:[7,8]},
+  {id:"loop",  title:"Looping borders",    desc:"Walls wrap around; can be switched off for solid walls.", items:[10]},
+  {id:"music", title:"Game music",         desc:"Looping background music with a mute button.", items:[16]},
+  {id:"sfx",   title:"Interaction sounds", desc:"Separate sounds for apple, booster and crash.", items:[17]},
+  {id:"build", title:"Board builder",      desc:"Custom boards with obstacles and fixed apple and booster positions.", items:[12,13]},
+  {id:"save",  title:"Save and load",      desc:"Store a game under a name and resume it later. Needs the board layout if the builder is on.", items:[14,15]},
+  {id:"test",  title:"JUnit testing",      desc:"Automatic tests for the game logic. Run it last so it covers every enabled feature.", items:[19]}
+];
+
+/* ---------- state ---------- */
+var KEY = "snake-plan-v1";
+function defaults(){
+  var s = {on:{}, done:{}, ui:{hideDone:false, details:true}};
+  PHASES.forEach(function(p){ s.on[p.id] = true; });
+  Object.keys(ITEMS).forEach(function(id){
+    ITEMS[id].t.forEach(function(t,i){ if(t[1]) s.done[id+"."+i] = true; });
+  });
+  return s;
+}
+var state = defaults();
+try{
+  var raw = localStorage.getItem(KEY);
+  if(raw){ var p = JSON.parse(raw); if(p && p.on && p.done && p.ui) state = p; }
+}catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+/* ---------- helpers ---------- */
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function itemCounts(id){
+  var t = ITEMS[id].t, d = 0;
+  t.forEach(function(_,i){ if(state.done[id+"."+i]) d++; });
+  return {done:d,total:t.length};
+}
+function itemStatus(id){
+  var c = itemCounts(id);
+  return c.done === c.total ? "done" : c.done === 0 ? "todo" : "doing";
+}
+var LABEL = {done:"Done",doing:"In progress",todo:"To do"};
+function enabledPhases(){ return PHASES.filter(function(p){ return state.on[p.id]; }); }
+
+/* ---------- render ---------- */
+function renderMenu(){
+  var h = '<h3>Features</h3>';
+  PHASES.forEach(function(p){
+    h += '<div class="row"><div>'+esc(p.title)+'<small>'+(p.locked?'Always on (needed for the game)':esc(p.desc))+'</small></div>' +
+      '<span class="switch"><input type="checkbox" data-phase="'+p.id+'" aria-label="'+esc(p.title)+'"'+(state.on[p.id]?' checked':'')+(p.locked?' disabled':'')+'><i></i></span></div>';
+  });
+  h += '<hr><h3>View</h3>' +
+    '<div class="row"><div>Hide finished items</div><span class="switch"><input type="checkbox" data-ui="hideDone" aria-label="Hide finished items"'+(state.ui.hideDone?' checked':'')+'><i></i></span></div>' +
+    '<div class="row"><div>Show demo and notes</div><span class="switch"><input type="checkbox" data-ui="details" aria-label="Show demo and notes"'+(state.ui.details?' checked':'')+'><i></i></span></div>' +
+    '<hr><div class="row"><button class="btn" data-all="on">Enable all</button><button class="btn" data-all="off">Only core</button></div>';
+  document.getElementById("menu").innerHTML = h;
+}
+
+function renderSteps(){
+  var n = 0, h = "";
+  PHASES.forEach(function(p){
+    var on = state.on[p.id];
+    if(on) n++;
+    var d = 0, t = 0;
+    p.items.forEach(function(id){ var c = itemCounts(id); d += c.done; t += c.total; });
+    var all = on && d === t;
+    h += '<section class="step'+(on?'':' off')+(all?' allcomplete':'')+'" id="step-'+p.id+'"><header>' +
+      '<div class="num">'+(on?n:'–')+'</div>' +
+      '<div class="t"><h3>'+esc(p.title)+'</h3><p>'+esc(on?p.desc:"Disabled – left out of the plan.")+'</p></div>' +
+      (on?'<span class="count">'+d+'/'+t+'</span>':'') +
+      (p.locked?'<span class="lock">always on</span>':'<span class="switch"><input type="checkbox" data-phase="'+p.id+'" aria-label="Enable '+esc(p.title)+'"'+(on?' checked':'')+'><i></i></span>') +
+      '</header>';
+    if(on){
+      p.items.forEach(function(id){
+        var it = ITEMS[id], st = itemStatus(id);
+        h += '<div class="item'+(st==="done"?' complete':'')+'"><div class="head"><span class="id">#'+id+'</span><h4>'+esc(it.n)+'</h4><span class="chip '+st+'">'+LABEL[st]+'</span></div>' +
+          '<div class="detail"><b>Demo:</b> '+esc(it.d)+'<br><b>Notes:</b> '+esc(it.o)+'</div><ul class="tasks">';
+        it.t.forEach(function(task,i){
+          var k = id+"."+i;
+          h += '<li><input type="checkbox" id="c'+k+'" data-task="'+k+'"'+(state.done[k]?' checked':'')+'><label for="c'+k+'">'+esc(task[0])+'</label></li>';
+        });
+        h += '</ul></div>';
+      });
+    }
+    h += '</section>';
+  });
+  var el = document.getElementById("steps");
+  el.innerHTML = h;
+}
+
+function renderRows(){
+  var ids = [];
+  enabledPhases().forEach(function(p){ p.items.forEach(function(i){ ids.push(i); }); });
+  ids.sort(function(a,b){return a-b;});
+  document.getElementById("rows").innerHTML = ids.map(function(id){
+    var it = ITEMS[id], st = itemStatus(id);
+    return '<tr><td>'+id+'</td><td class="nm">'+esc(it.n)+'</td><td>'+esc(it.d)+'</td><td>'+esc(it.o)+'</td><td><span class="chip '+st+'">'+LABEL[st]+'</span></td></tr>';
+  }).join("") || '<tr><td colspan="5" class="empty">No features enabled.</td></tr>';
+}
+
+function renderProgress(){
+  var d = 0, t = 0, items = 0, itemsDone = 0, next = null;
+  enabledPhases().forEach(function(p){
+    p.items.forEach(function(id){
+      var c = itemCounts(id); d += c.done; t += c.total; items++;
+      if(c.done === c.total) itemsDone++;
+      if(!next){
+        for(var i=0;i<ITEMS[id].t.length;i++){
+          if(!state.done[id+"."+i]){ next = {p:p,id:id,task:ITEMS[id].t[i][0]}; break; }
+        }
+      }
+    });
+  });
+  var pc = t ? Math.round(d/t*100) : 0;
+  document.getElementById("fill").style.width = pc+"%";
+  document.getElementById("pct").textContent = pc+"%";
+  document.getElementById("meta").textContent = itemsDone+" of "+items+" backlog items done · "+d+" of "+t+" tasks ticked · "+enabledPhases().length+" of "+PHASES.length+" steps enabled";
+  document.getElementById("next").innerHTML = next
+    ? '<b>Next up</b>'+esc(next.task)+' <span class="meta">– #'+next.id+' '+esc(ITEMS[next.id].n)+' ('+esc(next.p.title)+')</span>'
+    : '<b>Next up</b>Everything enabled is finished. 🎉';
+}
+
+function applyUi(){
+  document.body.classList.toggle("hide-done", !!state.ui.hideDone);
+  document.body.classList.toggle("nodetail", !state.ui.details);
+}
+
+function renderAll(keepMenu){
+  if(!keepMenu) renderMenu();
+  renderSteps(); renderRows(); renderProgress(); applyUi();
+}
+
+/* ---------- events ---------- */
+var menu = document.getElementById("menu"), menuBtn = document.getElementById("menuBtn");
+function setMenu(open){
+  menu.classList.toggle("open", open);
+  menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+menuBtn.addEventListener("click", function(e){ e.stopPropagation(); setMenu(!menu.classList.contains("open")); });
+document.addEventListener("click", function(e){ if(!menu.contains(e.target)) setMenu(false); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") setMenu(false); });
+
+document.addEventListener("change", function(e){
+  var el = e.target;
+  if(el.dataset.phase){ state.on[el.dataset.phase] = el.checked; save(); renderAll(); }
+  else if(el.dataset.ui){ state.ui[el.dataset.ui] = el.checked; save(); renderAll(true); }
+  else if(el.dataset.task){
+    if(el.checked) state.done[el.dataset.task] = true; else delete state.done[el.dataset.task];
+    save(); renderSteps(); renderRows(); renderProgress();
+  }
+});
+menu.addEventListener("click", function(e){
+  var b = e.target.closest("[data-all]");
+  if(!b) return;
+  PHASES.forEach(function(p){ state.on[p.id] = p.locked ? true : b.dataset.all === "on"; });
+  save(); renderAll();
+});
+
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 1800);
+}
+document.getElementById("reset").addEventListener("click", function(){
+  if(!confirm("Reset all ticks and feature switches?")) return;
+  state = defaults(); save(); renderAll(); toast("Progress reset");
+});
+document.getElementById("copyMd").addEventListener("click", function(){
+  var md = "# Snake completion plan\n\n", n = 0;
+  enabledPhases().forEach(function(p){
+    n++; md += "## Step "+n+": "+p.title+"\n\n";
+    p.items.forEach(function(id){
+      md += "### #"+id+" "+ITEMS[id].n+"\n\n- Demo: "+ITEMS[id].d+"\n- Notes: "+ITEMS[id].o+"\n\n";
+      ITEMS[id].t.forEach(function(t,i){ md += "- ["+(state.done[id+"."+i]?"x":" ")+"] "+t[0]+"\n"; });
+      md += "\n";
+    });
+  });
+  function ok(){ toast("Markdown copied"); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(md).then(ok, function(){ toast("Copy failed"); });
+  } else {
+    var ta = document.createElement("textarea"); ta.value = md; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); ok(); }catch(e){ toast("Copy failed"); }
+    document.body.removeChild(ta);
+  }
+});
+
+renderAll();
+</script>
+</body>
+</html>
