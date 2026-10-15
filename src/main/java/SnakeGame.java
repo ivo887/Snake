@@ -11,6 +11,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
+import jaco.mp3.player.MP3Player;
+import java.io.File;
+
 
 public class SnakeGame extends JFrame {
 
@@ -35,6 +38,12 @@ public class SnakeGame extends JFrame {
     private boolean gameOver;
     private boolean started;
     private boolean paused;
+    MP3Player musicplayer = new MP3Player();
+    MP3Player appleplayer = new MP3Player();
+    MP3Player gameoverplayer = new MP3Player();
+    MP3Player boosterplayer = new MP3Player();
+
+
 
     public SnakeGame() {
         super("Snake");
@@ -43,6 +52,17 @@ public class SnakeGame extends JFrame {
         add(board);
         pack();
         setLocationRelativeTo(null);
+
+        musicplayer.addToPlayList(new File("SoundTrack/Snake Game Soundtrack-Main.mp3"));
+
+        musicplayer.setRepeat(true);
+
+        musicplayer.play();
+        appleplayer.addToPlayList(new File("SoundTrack/Snake Game Soundtrack-apple.mp3"));
+        gameoverplayer.addToPlayList(new File("SoundTrack/Snake Game Soundtrack-gameover.mp3"));
+        boosterplayer.addToPlayList(new File("SoundTrack/Snake Game Soundtrack-booster.mp3"));
+
+
 
         timer = new Timer(DELAY_MS, e -> tick());
         addKeyListener(new KeyAdapter() {
@@ -75,8 +95,10 @@ public class SnakeGame extends JFrame {
     }
 
     private void endGame() {
+        musicplayer.pause();
         gameOver = true;
         highScore = Math.max(highScore, score);
+        gameoverplayer.play();
         timer.stop();
         board.repaint();
     }
@@ -102,6 +124,7 @@ public class SnakeGame extends JFrame {
             timer.stop();
             new Menu().setVisible(true);
             dispose();
+            musicplayer.pause();
             return;
         }
         if (!started || gameOver) {
@@ -114,8 +137,10 @@ public class SnakeGame extends JFrame {
             paused = !paused;
             if (paused) {
                 timer.stop();
+                musicplayer.pause();
             } else {
                 timer.start();
+                musicplayer.play();
             }
             board.repaint();
             return;
@@ -156,6 +181,7 @@ public class SnakeGame extends JFrame {
         snake.add(0, new int[]{nx, ny});
         if (eating) {
             score++;
+            appleplayer.play();
             if (snake.size() == COLS * ROWS) {
                 endGame();
             } else {

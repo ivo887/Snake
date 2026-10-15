@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ClaudeCodeEditorTabs">
-    <option name="activeSessionId" value="475d872d-b88a-4944-80f1-445a661762d4" />
+    <option name="activeSessionId" value="69bf696b-ae48-4f32-b72c-5cde7e4ca2ab" />
     <option name="openSessionIds">
       <list>
         <option value="45db3d7f-bc37-40df-bce8-5e534c62b814" />
-        <option value="475d872d-b88a-4944-80f1-445a661762d4" />
+        <option value="69bf696b-ae48-4f32-b72c-5cde7e4ca2ab" />
       </list>
     </option>
     <option name="sessionPaths">
       <map>
         <entry key="45db3d7f-bc37-40df-bce8-5e534c62b814" value="/sessions/70c6181c-c8ed-4636-b6cb-089a4a126067" />
-        <entry key="475d872d-b88a-4944-80f1-445a661762d4" value="/sessions/1e6fcf64-6b1b-45cd-a067-a2c62474b6db" />
+        <entry key="69bf696b-ae48-4f32-b72c-5cde7e4ca2ab" value="/sessions/new" />
       </map>
     </option>
     <option name="sessionTitles">
       <map>
         <entry key="45db3d7f-bc37-40df-bce8-5e534c62b814" value="An enclosing instance of type Menu is not in scope" />
-        <entry key="475d872d-b88a-4944-80f1-445a661762d4" value="complete the firts nine subparts of the core mecha" />
+        <entry key="69bf696b-ae48-4f32-b72c-5cde7e4ca2ab" value="Claude Code" />
       </map>
     </option>
   </component>
