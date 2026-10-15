@@ -126,7 +126,9 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;display:flex;gap:10px;fl
         <li>SPACE starts a game, P pauses and resumes without losing state, ESC returns to the menu.</li>
         <li><code>checkCollision()</code> runs after every move; hitting the body ends the game and shows the final score.</li>
         <li>Borders loop: the snake re-enters on the opposite side. There is no setting to switch to solid walls yet.</li>
-        <li>Boosters, sounds, board builder and save/load are not in the code yet.</li>
+        <li>Sound uses the jaco-mp3-player library (<code>lib/</code>) and MP3s in <code>SoundTrack/</code>. The main theme loops, P pauses and resumes it, and it stops on game over and on ESC. Apple and game-over sounds play on their own players.</li>
+        <li>The music starts when the window opens and does not restart for a new game after game over. There is no mute option yet.</li>
+        <li>Boosters, board builder and save/load are not in the code yet. The booster sound is loaded, but nothing plays it.</li>
       </ul>
     </div>
   </section>
@@ -175,10 +177,10 @@ var ITEMS = {
      t:[["Random effect: fast (100 ms) or slow (300 ms)",1],["Flash the background colour while active",1],["Reset speed and colour after 5 seconds",1]]},
   10:{n:"Looping borders",d:"Steer the snake into a wall; it re-enters on the opposite side of the board.",o:"Wrap x and y coordinates. Add a setting to switch between looping and solid walls.",
      t:[["Add a loopingBorders setting",0],["Wrap the head x and y with modulo in tick()",1],["Skip the wall check in checkCollision() when looping is on",1],["Add a checkbox for it in the in-game menu",0]]},
-  16:{n:"Game music",d:"Start a game; background music plays. Toggle it with a mute button.",o:"Loop the music and stop it on pause and game over.",
-     t:[["Add a MusicPlayer class using javax.sound.sampled.Clip",0],["Add a .wav file under resources/",0],["Loop on start; stop on pause and game over",0],["Add a mute button",0]]},
+  16:{n:"Game music",d:"Start a game; background music plays. Toggle it with a mute button.",o:"Loop the music and stop it on pause and game over. Uses jaco-mp3-player from lib/.",
+     t:[["Add the jaco-mp3-player library to pom.xml",1],["Add the main theme MP3 under SoundTrack/",1],["Loop the theme with setRepeat(true)",1],["Pause and resume the music with P",1],["Stop the music on game over and when ESC goes to the menu",1],["Start the music with each new game, not when the window opens",0],["Add a mute button",0]]},
   17:{n:"Interaction sounds",d:"Eat an apple, collect a booster, or crash; each plays a different sound effect.",o:"Sound effects must not interrupt the music; include a mute option.",
-     t:[["Create short .wav files for apple, booster and crash",0],["Play effects on their own Clip so the music keeps going",0],["Call them from the eat, booster and collision code",0],["Add a mute-effects option",0]]},
+     t:[["Add apple, booster and game-over MP3s under SoundTrack/",1],["Play each effect on its own MP3Player so the music keeps going",1],["Play the apple sound when an apple is eaten",1],["Play the game-over sound when the snake crashes",1],["Play the booster sound when a booster is collected",0],["Add a mute-effects option",0]]},
   12:{n:"Build board",d:"Open the Board Builder; choose the board size and add or remove obstacle tiles on a grid.",o:"Custom boards must remain playable (the snake's start area stays free).",
      t:[["Create a BoardBuilder window with a clickable grid",0],["Let the player choose the board size",0],["Toggle obstacle tiles on and off",0],["Reject boards that block the snake's start area",0],["Treat obstacles as collisions in the game",0]]},
   13:{n:"Place apples and boosters in builder",d:"In the Board Builder, click a tile to place an apple or booster at a fixed position.",o:"Fixed positions are used at game start; random spawning continues after that.",
@@ -205,7 +207,7 @@ var PHASES = [
 ];
 
 /* ---------- state ---------- */
-var KEY = "snake-plan-v2";
+var KEY = "snake-plan-v3";
 function defaults(){
   var s = {on:{}, done:{}, ui:{hideDone:false, details:true}};
   PHASES.forEach(function(p){ s.on[p.id] = true; });
