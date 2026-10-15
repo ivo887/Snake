@@ -122,11 +122,11 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;display:flex;gap:10px;fl
     <div class="status">
       <b>Where the code is now (SnakeGame.java)</b>
       <ul>
-        <li>Snake, apple, score, booster with speed and colour effects, Start, Pause and Finish buttons all work.</li>
-        <li><code>checkCollision()</code> exists but is never called, so the game cannot end by crashing.</li>
-        <li>Start after Pause resets the game, so there is no real resume.</li>
-        <li>Apples and boosters only spawn in the first 550 px of the 650 px board and a booster can land on the apple.</li>
-        <li>Two quick key presses in one tick can turn the snake back into itself.</li>
+        <li>Core gameplay is done: tile grid, start screen, W/A/S/D movement, apples, growing, score and session high score.</li>
+        <li>SPACE starts a game, P pauses and resumes without losing state, ESC returns to the menu.</li>
+        <li><code>checkCollision()</code> runs after every move; hitting the body ends the game and shows the final score.</li>
+        <li>Borders loop: the snake re-enters on the opposite side. There is no setting to switch to solid walls yet.</li>
+        <li>Boosters, sounds, board builder and save/load are not in the code yet.</li>
       </ul>
     </div>
   </section>
@@ -152,29 +152,29 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;display:flex;gap:10px;fl
 /* ---------- data ---------- */
 var ITEMS = {
   1:{n:"Display game board",d:"Launch the app; the game board is displayed clearly in the GUI.",o:"Display a grid of tiles with a visible background.",
-     t:[["Create a JFrame with a GamePanel and 25 px tiles",1],["Draw a visible tile grid (currently only a black background)",0]]},
-  2:{n:"Start a new game",d:"Click Start; the snake appears on an empty board and the game begins.",o:"Reset snake, score, apple and booster, and initialise the game state.",
-     t:[["Start button resets snake, score, apple and booster",1],["Show a start screen instead of \"Game Over\" at launch",0]]},
+     t:[["Create a JFrame with a Board panel and 20 px tiles",1],["Draw a visible tile grid",1]]},
+  2:{n:"Start a new game",d:"Press SPACE; the snake appears on an empty board and the game begins.",o:"Reset snake, score and apple, and initialise the game state.",
+     t:[["SPACE resets snake, score and apple",1],["Show a start screen instead of \"Game Over\" at launch",1]]},
   3:{n:"Move the snake",d:"Press W, A, S, D; the snake changes direction and moves every tick.",o:"The snake cannot reverse directly into itself.",
-     t:[["Map W/A/S/D to directions",1],["Move the snake every timer tick",1],["Allow only one direction change per tick so a quick double key press cannot reverse the snake",0]]},
+     t:[["Map W/A/S/D to directions",1],["Move the snake every timer tick",1],["Allow only one direction change per tick so a quick double key press cannot reverse the snake",1]]},
   4:{n:"Place apples",d:"Start a game; an apple appears on a free tile. After it is eaten, a new one appears elsewhere.",o:"An apple must never spawn on the snake.",
-     t:[["Spawn the apple on a free tile",1],["Spawn over the whole board (currently limited to 550 px)",0]]},
+     t:[["Spawn the apple on a free tile",1],["Spawn over the whole board",1]]},
   5:{n:"Eat apple and grow",d:"Move the snake onto an apple; the apple disappears and the snake gets longer.",o:"Increase body length by one segment per apple.",
      t:[["Detect the head on the apple tile",1],["Grow the snake by one segment",1]]},
   6:{n:"Track score",d:"Eat several apples; the score shown on screen increases with each one.",o:"Reset the score on a new game.",
-     t:[["Show the score in the top-left corner",1],["Reset the score on a new game",1],["Keep a high score for the session",0]]},
-  9:{n:"Pause and resume",d:"Click Pause; the snake stops. Click Start or press a key to continue.",o:"Stop and restart the game timer without losing state.",
-     t:[["Pause button stops the timer",1],["Add Resume that keeps score and snake (Start currently resets everything)",0],["Press P to toggle pause",0]]},
-  11:{n:"Detect collision",d:"Steer the snake into itself (or into a wall when looping is off); the game ends.",o:"Check head against body and, if enabled, board edges.",
-     t:[["Write checkCollision() for body and walls",1],["Call it from actionPerformed after every move",0],["Stop the timer and show Game Over when it returns true",0]]},
-  18:{n:"End the game",d:"Crash or click Finish; the final score is displayed and further moves are stopped.",o:"Offer to start a new game or exit.",
-     t:[["Show the final score on the game-over screen",0],["Ignore key presses after game over",0],["Offer New Game and Exit instead of closing straight away on Finish",0]]},
+     t:[["Show the score in the top-left corner",1],["Reset the score on a new game",1],["Keep a high score for the session",1]]},
+  9:{n:"Pause and resume",d:"Press P; the snake stops. Press P again to continue.",o:"Stop and restart the game timer without losing state.",
+     t:[["P stops the timer and shows \"Paused\"",1],["Resume keeps score and snake",1],["Press P to toggle pause",1]]},
+  11:{n:"Detect collision",d:"Steer the snake into itself; the game ends.",o:"Check head against body (walls loop, so they never collide).",
+     t:[["Write checkCollision() for the body",1],["Call it from tick() after every move",1],["Stop the timer and show Game Over when it returns true",1]]},
+  18:{n:"End the game",d:"Crash into yourself; the final score is displayed and further moves are stopped.",o:"Offer to start a new game or go back to the menu.",
+     t:[["Show the final score on the game-over screen",1],["Ignore key presses after game over",1],["Offer SPACE for a new game and ESC for the menu",1]]},
   7:{n:"Place boosters",d:"Start a game; a booster appears on a free tile, separate from the apple.",o:"A booster must never spawn on the snake or the apple.",
      t:[["Spawn the booster on a tile free of the snake",1],["Also avoid the apple tile",0],["Spawn over the whole board",0]]},
   8:{n:"Booster effects",d:"Collect a booster; the speed changes (faster or slower) and the background colour flashes.",o:"The effect is random and lasts 5 seconds, then speed and colour reset.",
      t:[["Random effect: fast (100 ms) or slow (300 ms)",1],["Flash the background colour while active",1],["Reset speed and colour after 5 seconds",1]]},
   10:{n:"Looping borders",d:"Steer the snake into a wall; it re-enters on the opposite side of the board.",o:"Wrap x and y coordinates. Add a setting to switch between looping and solid walls.",
-     t:[["Add a loopingBorders setting",0],["Wrap the head x and y with modulo in Snake.move()",0],["Skip the wall check in checkCollision() when looping is on",0],["Add a checkbox for it in the in-game menu",0]]},
+     t:[["Add a loopingBorders setting",0],["Wrap the head x and y with modulo in tick()",1],["Skip the wall check in checkCollision() when looping is on",1],["Add a checkbox for it in the in-game menu",0]]},
   16:{n:"Game music",d:"Start a game; background music plays. Toggle it with a mute button.",o:"Loop the music and stop it on pause and game over.",
      t:[["Add a MusicPlayer class using javax.sound.sampled.Clip",0],["Add a .wav file under resources/",0],["Loop on start; stop on pause and game over",0],["Add a mute button",0]]},
   17:{n:"Interaction sounds",d:"Eat an apple, collect a booster, or crash; each plays a different sound effect.",o:"Sound effects must not interrupt the music; include a mute option.",
@@ -205,7 +205,7 @@ var PHASES = [
 ];
 
 /* ---------- state ---------- */
-var KEY = "snake-plan-v1";
+var KEY = "snake-plan-v2";
 function defaults(){
   var s = {on:{}, done:{}, ui:{hideDone:false, details:true}};
   PHASES.forEach(function(p){ s.on[p.id] = true; });
