@@ -93,7 +93,7 @@ The working directory for the run configurations should be the project folder (n
 | `release version 17 not supported` or `invalid target release: 17` | Maven uses an old JDK, so set `JAVA_HOME` to a JDK 17 or newer, or see notes for B. |
 | `package jaco.mp3.player does not exist` | `lib/jaco-mp3-player-0.9.3.jar` is missing, so re-clone the repository or restore this file. |
 | The game runs but has no sound | Run it from the project folder so that it can find `SoundTrack/` (see notes for A). Make sure that music and effects are enabled in the menu, or press M/N in-game. |
-| Warning: `'systemPath' ... should not point at files within the project directory` | Safe to ignore. It's how Maven handles the MP3 library `lib/jaco-mp3-player-0.9.3.jar`. The build still works, and the warning disappears after you delete the file. |
+| Warning: `'systemPath' ... should not point at files within the project directory` | Safe to ignore. It's how Maven handles the MP3 library `lib/jaco-mp3-player-0.9.3.jar`. The build still works. Do not delete the jar, because the game needs it to compile. |
 | An old save is shown as "unreadable" | The file is probably corrupted or modified, so delete it in the menu. |
 
 ## Project structure
@@ -110,7 +110,7 @@ The code is split into packages by responsibility. Arrows show which packages im
 | | `Snake` | Snake's body and direction |
 | | `Point` | An immutable position on the board (a `record`) |
 | | `Direction` | Directions and offsets (an `enum`) |
-| | `BoosterEffect` | Fast / slow effect with a speed multiplier |
+| | `BoosterEffect` | Fast / slow effect with its tick delay in milliseconds |
 | | `GameEvent` | Describes what happens on each game tick (apple, booster, etc) |
 | | `BoardSize` | Board sizes offered in the menu |
 | `snake.ui` | `MenuFrame` | Menu: new game, load game, settings |
