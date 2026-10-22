@@ -101,11 +101,7 @@ The working directory for the run configurations should be the project folder (n
 The code is split into packages by responsibility. Arrows show which packages import which; the model has no dependencies, so that the game logic can be tested without a window.
 
 ```
-snake.ui  ───►  snake.model  ◄───  snake.persistence
-   │                                     ▲
-   ├──────────►  snake.audio  ───────────┘ (reads Settings)
-   └─────────────────────────────────────┘
-```
+
 
 | Package | Class | Responsibility |
 |---------|-------|----------------|
