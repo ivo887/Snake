@@ -37,24 +37,84 @@ Delete to remove it.
 
 ## Requirements
 
-- JDK 17 or newer (set in `pom.xml`)
-- Maven (or IntelliJ IDEA, which includes it)
+| What | Version | Notes |
+|------|---------|-------|
+| JDK | 17 or newer | A full JDK, not just a JRE. Check with `java -version`. |
+| Maven | 3.6 or newer | Optional if you use IntelliJ IDEA, which has Maven built in. Check with `mvn -version`. |
+| Internet connection | first build only | Maven downloads Gson and JUnit once and then caches them. |
+| Speakers / headphones | optional | The game runs without sound if no audio device is available. |
 
-## Run
+The libraries are set up by `pom.xml`, so you do not have to install them yourself:
 
-From the project folder (the game loads its sounds from `SoundTrack/`, so run it from here):
+| Library | Used for | Where it comes from |
+|---------|----------|---------------------|
+| Gson 2.11.0 | Save files and settings (JSON) | Downloaded by Maven |
+| JUnit 5.11.4 | Unit tests | Downloaded by Maven |
+| jaco-mp3-player 0.9.3 | Music and sound effects | Included in `lib/` (not on Maven Central) |
+
+## Setup
+
+1. **Install a JDK (17 or newer).** For example [Eclipse Temurin](https://adoptium.net/). On Windows, tick
+   "Set JAVA_HOME" and "Add to PATH" in the installer. Open a new terminal and check that `java -version`
+   prints 17 or higher.
+2. **Get the project.** Clone it with `git clone https://github.com/ivo887/Snake.git`, or unzip the submitted ZIP.
+   Keep the folder layout as it is: the game needs `lib/` and `SoundTrack/` next to `pom.xml`.
+3. **Choose how to build it:** IntelliJ IDEA (easiest, no extra installs) or Maven from a terminal.
+
+### Option A: IntelliJ IDEA
+
+1. **File → Open** and pick the project folder (the one with `pom.xml`). If asked, choose **Open as Project**
+   and **Trust Project**.
+2. IntelliJ sees `pom.xml` and imports it as a Maven project. If the libraries do not load, open the **Maven**
+   tool window (right side) and click **Reload All Maven Projects**.
+3. **File → Project Structure → Project** and set **SDK** to a JDK 17 or newer (use **Add SDK → Download JDK**
+   if none is listed).
+4. Open `src/main/java/snake/Main.java` and click the green ▶ next to `main`.
+5. To run the tests, right-click `src/test/java` and choose **Run 'All Tests'**.
+
+The run configuration's working directory must be the project folder (IntelliJ's default). Otherwise the game
+cannot find `SoundTrack/` and runs without sound.
+
+### Option B: Maven in a terminal
+
+1. Install Maven: download it from [maven.apache.org](https://maven.apache.org/download.cgi), unzip it, and add its
+   `bin` folder to your `PATH`. Package managers also work: `winget install Apache.Maven`, `brew install maven`,
+   `sudo apt install maven`.
+2. Open a terminal **in the project folder** and run:
 
 ```
 mvn compile exec:java
 ```
 
-Or open the project in IntelliJ IDEA and run `snake.Main`.
+The first run downloads the dependencies and can take a minute. After that the menu window opens.
 
-## Test
+Run the tests with:
 
 ```
 mvn test
 ```
+
+All tests should pass (`BUILD SUCCESS`). Results are written to `target/surefire-reports/`.
+
+## Files the game creates
+
+The game writes these in the folder it was started from. Both are ignored by git.
+
+| File | Contents | To reset |
+|------|----------|----------|
+| `settings.json` | Menu options (borders, board size, music, effects) and the high score per board size | Delete the file |
+| `saves/*.json` | One file per saved game | Delete the save in the menu, or delete the file |
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `mvn` is not recognized | Maven is not on your `PATH`. Install it (Option B, step 1) and open a new terminal, or use IntelliJ (Option A). |
+| `release version 17 not supported` or `invalid target release: 17` | Maven is using an older JDK. Point `JAVA_HOME` at a JDK 17+ and check with `mvn -version`. |
+| `package jaco.mp3.player does not exist` | `lib/jaco-mp3-player-0.9.3.jar` is missing. Restore the `lib/` folder. |
+| The game runs but there is no sound | Start it from the project folder so that `SoundTrack/` can be found. Check that music and effects are ticked in the menu (or press M / N in the game). |
+| Warning: `'systemPath' ... should not point at files within the project directory` | Harmless. This is how Maven reports the MP3 library in `lib/`; the build still succeeds. |
+| An old save shows as "unreadable" | The file is broken or was edited by hand. Delete it from the menu. |
 
 ## Project structure
 
