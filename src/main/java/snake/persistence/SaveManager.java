@@ -26,7 +26,13 @@ public class SaveManager {
         for (File file : files) {
             String fileName = file.getName();
             if (fileName.endsWith(".json")) {
-                saves.add(new SaveInfo(fileName.substring(0, fileName.length() - 5), file));
+                GameState game;
+                try {
+                    game = read(file);
+                } catch (InvalidSaveException e) {
+                    game = null;
+                }
+                saves.add(new SaveInfo(fileName.substring(0, fileName.length() - 5), file, game));
             }
         }
         saves.sort((a, b) -> Long.compare(b.file().lastModified(), a.file().lastModified()));
@@ -43,9 +49,17 @@ public class SaveManager {
     }
 
     public GameState load(SaveInfo save) throws InvalidSaveException {
+        return read(save.file());
+    }
+
+    public boolean delete(SaveInfo save) {
+        return save.file().delete();
+    }
+
+    private static GameState read(File file) throws InvalidSaveException {
         GameState state;
         try {
-            state = GSON.fromJson(Files.readString(save.file().toPath()), GameState.class);
+            state = GSON.fromJson(Files.readString(file.toPath()), GameState.class);
         } catch (IOException | RuntimeException e) {
             throw new InvalidSaveException("The save file could not be read.");
         }
@@ -53,10 +67,6 @@ public class SaveManager {
             throw new InvalidSaveException("The save file is corrupted.");
         }
         return state;
-    }
-
-    public boolean delete(SaveInfo save) {
-        return save.file().delete();
     }
 
     // blocks names like ../x

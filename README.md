@@ -14,9 +14,9 @@ A Snake game written in Java with Swing.
 - Three board sizes: 15x15, 25x25 and 35x35.
 - Pause and resume. A booster effect is frozen while paused.
 - Background music and sound effects for apples, boosters and game over, each with its own mute key.
-- Save a game under a name and load it later from the menu. Saves are listed newest first with their date,
+- Save a game under a name and load it later from the menu. Saves are listed newest first with their board size, score and date,
   can be deleted, and corrupted or missing files show an error instead of crashing.
-- Settings and the high score are remembered between runs.
+- Settings and a separate high score for each board size are remembered between runs.
 
 ## Controls
 
@@ -32,11 +32,12 @@ A Snake game written in Java with Swing.
 | N | Sound effects on / off |
 | ESC | Back to the menu (offers to save first) |
 
-In the menu, double-click a save to load it.
+In the menu, press Enter to start a new game, double-click a save to load it, or select a save and press
+Delete to remove it.
 
 ## Requirements
 
-- JDK 26 (set in `pom.xml`)
+- JDK 17 or newer (set in `pom.xml`)
 - Maven (or IntelliJ IDEA, which includes it)
 
 ## Run
@@ -84,7 +85,7 @@ snake.ui  ───►  snake.model  ◄───  snake.persistence
 | | `GameController` | Runs the game timer, pause and game over, and plays sounds for events |
 | | `Theme` | Shared colours and fonts |
 | `snake.persistence` | `SaveManager` | Lists, saves, loads and deletes JSON save files |
-| | `Settings` | Options and high score, saved to `settings.json` |
+| | `Settings` | Options and high scores per board size, saved to `settings.json` |
 | | `SaveInfo`, `InvalidSaveException` | Save list entry, load error |
 | `snake.audio` | `SoundManager` | Plays music and effects, each on its own MP3 player |
 | | `Sound` | The sounds and their MP3 files |

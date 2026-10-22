@@ -19,7 +19,7 @@ class SettingsTest {
         assertTrue(settings.isLooping());
         assertTrue(settings.isMusicOn());
         assertEquals(BoardSize.MEDIUM, settings.getBoardSize());
-        assertEquals(0, settings.getHighScore());
+        assertEquals(0, settings.getHighScore(25));
     }
 
     @Test
@@ -28,19 +28,29 @@ class SettingsTest {
         Settings settings = Settings.load(file);
         settings.setLooping(false);
         settings.setBoardSize(BoardSize.LARGE);
-        settings.recordScore(12);
+        settings.recordScore(35, 12);
 
         Settings reloaded = Settings.load(file);
         assertFalse(reloaded.isLooping());
         assertEquals(BoardSize.LARGE, reloaded.getBoardSize());
-        assertEquals(12, reloaded.getHighScore());
+        assertEquals(12, reloaded.getHighScore(35));
     }
 
     @Test
     void onlyHigherScoresReplaceTheHighScore() {
         Settings settings = new Settings();
-        assertTrue(settings.recordScore(5));
-        assertFalse(settings.recordScore(3));
-        assertEquals(5, settings.getHighScore());
+        assertTrue(settings.recordScore(25, 5));
+        assertFalse(settings.recordScore(25, 3));
+        assertEquals(5, settings.getHighScore(25));
+    }
+
+    @Test
+    void eachBoardSizeHasItsOwnHighScore() {
+        Settings settings = new Settings();
+        settings.recordScore(15, 20);
+        assertTrue(settings.recordScore(35, 4));
+        assertEquals(20, settings.getHighScore(15));
+        assertEquals(4, settings.getHighScore(35));
+        assertEquals(0, settings.getHighScore(25));
     }
 }

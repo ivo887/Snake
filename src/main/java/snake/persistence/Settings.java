@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import snake.model.BoardSize;
 
 public class Settings {
@@ -13,7 +15,8 @@ public class Settings {
     private boolean musicOn = true;
     private boolean effectsOn = true;
     private BoardSize boardSize = BoardSize.MEDIUM;
-    private int highScore;
+    // board width (tiles) -> best score on that board
+    private Map<Integer, Integer> highScores = new HashMap<>();
     private transient File file;
 
     public static Settings load(File file) {
@@ -28,6 +31,9 @@ public class Settings {
         }
         if (settings.boardSize == null) {
             settings.boardSize = BoardSize.MEDIUM;
+        }
+        if (settings.highScores == null) {
+            settings.highScores = new HashMap<>();
         }
         settings.file = file;
         return settings;
@@ -69,15 +75,15 @@ public class Settings {
         save();
     }
 
-    public int getHighScore() {
-        return highScore;
+    public int getHighScore(int tiles) {
+        return highScores.getOrDefault(tiles, 0);
     }
 
-    public boolean recordScore(int score) {
-        if (score <= highScore) {
+    public boolean recordScore(int tiles, int score) {
+        if (score <= getHighScore(tiles)) {
             return false;
         }
-        highScore = score;
+        highScores.put(tiles, score);
         save();
         return true;
     }
