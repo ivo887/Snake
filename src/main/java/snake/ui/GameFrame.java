@@ -32,10 +32,10 @@ public class GameFrame extends JFrame {
     private final JLabel effectLabel = new JLabel();
     private final JLabel soundLabel = new JLabel();
 
-    public GameFrame(AppContext app, GameState state, boolean resumed) {
+    public GameFrame(AppContext app, GameState state, GameController.Phase startPhase) {
         super("Snake");
         this.app = app;
-        controller = new GameController(state, resumed, app.settings(), app.sounds(), this::refresh);
+        controller = new GameController(state, startPhase, app.settings(), app.sounds(), this::refresh);
         board = new BoardPanel(controller);
 
         saveButton.setFocusable(false);
@@ -103,15 +103,13 @@ public class GameFrame extends JFrame {
 
     private void refresh() {
         GameState state = controller.state();
-        int high = Math.max(state.score(), app.settings().getHighScore());
+        int high = Math.max(state.score(), app.settings().getHighScore(state.cols()));
         scoreLabel.setText("Score: " + state.score() + "    High: " + high);
 
-        if (state.effect() == BoosterEffect.FAST) {
-            effectLabel.setText("Speed up " + state.effectSecondsLeft() + "s");
-            effectLabel.setForeground(Theme.BOARD_FAST);
-        } else if (state.effect() == BoosterEffect.SLOW) {
-            effectLabel.setText("Slow down " + state.effectSecondsLeft() + "s");
-            effectLabel.setForeground(Theme.BOARD_SLOW);
+        BoosterEffect effect = state.effect();
+        if (effect != null) {
+            effectLabel.setText(effect.label() + " " + state.effectSecondsLeft() + "s");
+            effectLabel.setForeground(Theme.boardColor(effect));
         } else {
             effectLabel.setText("");
         }

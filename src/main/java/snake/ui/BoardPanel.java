@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import javax.swing.JPanel;
-import snake.model.BoosterEffect;
 import snake.model.GameState;
 import snake.model.Point;
 
@@ -48,13 +47,7 @@ public class BoardPanel extends JPanel {
     }
 
     private void drawBoard(Graphics g, GameState state) {
-        if (state.effect() == BoosterEffect.FAST) {
-            g.setColor(Theme.BOARD_FAST);
-        } else if (state.effect() == BoosterEffect.SLOW) {
-            g.setColor(Theme.BOARD_SLOW);
-        } else {
-            g.setColor(Theme.BOARD);
-        }
+        g.setColor(Theme.boardColor(state.effect()));
         g.fillRect(0, 0, getWidth(), getHeight());
 
         int width = state.cols() * TILE;

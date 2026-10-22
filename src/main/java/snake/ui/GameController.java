@@ -24,18 +24,18 @@ public class GameController {
     private Phase phase;
     private boolean newHighScore;
 
-    public GameController(GameState state, boolean resumed, Settings settings, SoundManager sounds,
+    // startPhase is READY for a new game, PAUSED for a loaded one
+    public GameController(GameState state, Phase startPhase, Settings settings, SoundManager sounds,
                           Runnable onChange) {
+        if (startPhase != Phase.READY && startPhase != Phase.PAUSED) {
+            throw new IllegalArgumentException("A game can only start READY or PAUSED, not " + startPhase);
+        }
         this.state = state;
+        this.phase = startPhase;
         this.settings = settings;
         this.sounds = sounds;
         this.onChange = onChange;
         this.timer = new Timer(state.tickDelayMs(), e -> tick());
-        if (resumed) {
-            phase = Phase.PAUSED;
-        } else {
-            phase = Phase.READY;
-        }
     }
 
     public void startNewGame() {
@@ -126,7 +126,7 @@ public class GameController {
             timer.stop();
             sounds.stopMusic();
             sounds.play(Sound.GAME_OVER);
-            newHighScore = settings.recordScore(state.score());
+            newHighScore = settings.recordScore(state.cols(), state.score());
         }
         timer.setDelay(state.tickDelayMs());
         onChange.run();

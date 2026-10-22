@@ -2,13 +2,14 @@ package snake.ui;
 
 import java.awt.Color;
 import java.awt.Font;
+import snake.model.BoosterEffect;
 
 public class Theme {
     public static final int TILE = 20;
 
     public static final Color BOARD = new Color(18, 18, 18);
-    public static final Color BOARD_FAST = new Color(90, 0, 0);
-    public static final Color BOARD_SLOW = new Color(0, 0, 90);
+    private static final Color BOARD_FAST = new Color(90, 0, 0);
+    private static final Color BOARD_SLOW = new Color(0, 0, 90);
     public static final Color GRID = new Color(40, 40, 40);
     public static final Color SNAKE_HEAD = new Color(120, 255, 120);
     public static final Color SNAKE_BODY = new Color(40, 180, 40);
@@ -20,4 +21,15 @@ public class Theme {
     public static final Font TITLE = new Font(Font.SANS_SERIF, Font.BOLD, 32);
     public static final Font TEXT = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
     public static final Font HUD = new Font(Font.SANS_SERIF, Font.BOLD, 14);
+
+    // board background; tinted while a booster effect is active
+    public static Color boardColor(BoosterEffect effect) {
+        if (effect == null) {
+            return BOARD;
+        }
+        return switch (effect) {
+            case FAST -> BOARD_FAST;
+            case SLOW -> BOARD_SLOW;
+        };
+    }
 }

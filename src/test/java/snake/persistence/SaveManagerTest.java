@@ -2,6 +2,7 @@ package snake.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,6 +64,22 @@ class SaveManagerTest {
         Files.writeString(new File(folder, "broken.json").toPath(), json);
         SaveInfo save = saves.list().get(0);
         assertThrows(InvalidSaveException.class, () -> saves.load(save));
+    }
+
+    @Test
+    void listShowsBoardSizeAndScore() throws Exception {
+        SaveManager saves = new SaveManager(folder);
+        saves.save("big", new GameState(35, 35, true));
+        Files.writeString(new File(folder, "broken.json").toPath(), "not json at all");
+
+        for (SaveInfo save : saves.list()) {
+            if (save.name().equals("big")) {
+                assertTrue(save.toString().contains("35x35, score 0"));
+            } else {
+                assertNull(save.game());
+                assertTrue(save.toString().contains("unreadable"));
+            }
+        }
     }
 
     @Test
