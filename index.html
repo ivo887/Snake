@@ -120,15 +120,15 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;display:flex;gap:10px;fl
     <div class="meta" id="meta"></div>
     <div class="next" id="next"></div>
     <div class="status">
-      <b>Where the code is now (SnakeGame.java)</b>
+      <b>Where the code is now</b>
       <ul>
-        <li>Core gameplay is done: tile grid, start screen, W/A/S/D movement, apples, growing, score and session high score.</li>
-        <li>SPACE starts a game, P pauses and resumes without losing state, ESC returns to the menu.</li>
-        <li><code>checkCollision()</code> runs after every move; hitting the body ends the game and shows the final score.</li>
-        <li>Borders loop: the snake re-enters on the opposite side. There is no setting to switch to solid walls yet.</li>
-        <li>Sound uses the jaco-mp3-player library (<code>lib/</code>) and MP3s in <code>SoundTrack/</code>. The main theme loops, P pauses and resumes it, and it stops on game over and on ESC. Apple and game-over sounds play on their own players.</li>
-        <li>The music starts when the window opens and does not restart for a new game after game over. There is no mute option yet.</li>
-        <li>Boosters, board builder and save/load are not in the code yet. The booster sound is loaded, but nothing plays it.</li>
+        <li><code>snake.model</code> holds the game rules with no Swing code: <code>GameState</code>, <code>Snake</code>, <code>Point</code>, <code>Direction</code>, <code>BoosterEffect</code>.</li>
+        <li><code>snake.ui</code> has <code>MenuFrame</code>, <code>GameFrame</code>, <code>BoardPanel</code> and <code>GameController</code> (timer, pause, game over).</li>
+        <li><code>snake.persistence</code> saves games and settings as JSON with Gson; <code>snake.audio</code> plays the MP3s.</li>
+        <li>Keys: W/A/S/D or arrows move, SPACE starts, P pauses, M mutes music, N mutes effects, ESC returns to the menu.</li>
+        <li>Saves are JSON files in <code>saves/</code>; settings and the high score are kept in <code>settings.json</code>. Missing or corrupted files show an error.</li>
+        <li>JUnit 5 tests cover the game rules and saving, using <code>@TempDir</code> for temporary files.</li>
+        <li>The board builder was dropped from the scope. The Git branching workflow is still to do.</li>
       </ul>
     </div>
   </section>
@@ -145,7 +145,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;display:flex;gap:10px;fl
   <footer>
     <button class="btn" id="copyMd">Copy plan as Markdown</button>
     <button class="btn" id="reset">Reset progress</button>
-    <span>Possible advanced topics: JUnit testing, Git branching workflows, file I/O (save/load), Java Sound API.</span>
+    <span>Advanced topics used: JUnit testing, file I/O with JSON (Gson), MP3 sound. Still open: Git branching workflow.</span>
   </footer>
 </main>
 <div class="toast" id="toast"></div>
@@ -172,25 +172,21 @@ var ITEMS = {
   18:{n:"End the game",d:"Crash into yourself; the final score is displayed and further moves are stopped.",o:"Offer to start a new game or go back to the menu.",
      t:[["Show the final score on the game-over screen",1],["Ignore key presses after game over",1],["Offer SPACE for a new game and ESC for the menu",1]]},
   7:{n:"Place boosters",d:"Start a game; a booster appears on a free tile, separate from the apple.",o:"A booster must never spawn on the snake or the apple.",
-     t:[["Spawn the booster on a tile free of the snake",1],["Also avoid the apple tile",0],["Spawn over the whole board",0]]},
+     t:[["Spawn the booster on a tile free of the snake",1],["Also avoid the apple tile",1],["Spawn over the whole board",1]]},
   8:{n:"Booster effects",d:"Collect a booster; the speed changes (faster or slower) and the background colour flashes.",o:"The effect is random and lasts 5 seconds, then speed and colour reset.",
      t:[["Random effect: fast (100 ms) or slow (300 ms)",1],["Flash the background colour while active",1],["Reset speed and colour after 5 seconds",1]]},
   10:{n:"Looping borders",d:"Steer the snake into a wall; it re-enters on the opposite side of the board.",o:"Wrap x and y coordinates. Add a setting to switch between looping and solid walls.",
-     t:[["Add a loopingBorders setting",0],["Wrap the head x and y with modulo in tick()",1],["Skip the wall check in checkCollision() when looping is on",1],["Add a checkbox for it in the in-game menu",0]]},
+     t:[["Add a looping setting",1],["Wrap the head x and y with modulo in tick()",1],["Skip the wall check in checkCollision() when looping is on",1],["Add a checkbox for it in the menu",1]]},
   16:{n:"Game music",d:"Start a game; background music plays. Toggle it with a mute button.",o:"Loop the music and stop it on pause and game over. Uses jaco-mp3-player from lib/.",
-     t:[["Add the jaco-mp3-player library to pom.xml",1],["Add the main theme MP3 under SoundTrack/",1],["Loop the theme with setRepeat(true)",1],["Pause and resume the music with P",1],["Stop the music on game over and when ESC goes to the menu",1],["Start the music with each new game, not when the window opens",0],["Add a mute button",0]]},
+     t:[["Add the jaco-mp3-player library to pom.xml",1],["Add the main theme MP3 under SoundTrack/",1],["Loop the theme with setRepeat(true)",1],["Pause and resume the music with P",1],["Stop the music on game over and when ESC goes to the menu",1],["Start the music with each new game, not when the window opens",1],["Add a mute key (M) and a music checkbox",1]]},
   17:{n:"Interaction sounds",d:"Eat an apple, collect a booster, or crash; each plays a different sound effect.",o:"Sound effects must not interrupt the music; include a mute option.",
-     t:[["Add apple, booster and game-over MP3s under SoundTrack/",1],["Play each effect on its own MP3Player so the music keeps going",1],["Play the apple sound when an apple is eaten",1],["Play the game-over sound when the snake crashes",1],["Play the booster sound when a booster is collected",0],["Add a mute-effects option",0]]},
-  12:{n:"Build board",d:"Open the Board Builder; choose the board size and add or remove obstacle tiles on a grid.",o:"Custom boards must remain playable (the snake's start area stays free).",
-     t:[["Create a BoardBuilder window with a clickable grid",0],["Let the player choose the board size",0],["Toggle obstacle tiles on and off",0],["Reject boards that block the snake's start area",0],["Treat obstacles as collisions in the game",0]]},
-  13:{n:"Place apples and boosters in builder",d:"In the Board Builder, click a tile to place an apple or booster at a fixed position.",o:"Fixed positions are used at game start; random spawning continues after that.",
-     t:[["Add apple and booster tools to the builder",0],["Store the fixed positions in the board model",0],["Use them at game start, then switch to random spawning",0]]},
-  14:{n:"Save game",d:"During a game, click Save; the current state is stored under a chosen save name.",o:"Store snake position, direction, apple, booster, score, board layout and settings.",
-     t:[["Create a GameState class with snake, direction, apple, booster, score, board and settings",0],["Write it to a file (Serializable or a simple text format)",0],["Add a Save button that asks for a save name",0]]},
+     t:[["Add apple, booster and game-over MP3s under SoundTrack/",1],["Play each effect on its own MP3Player so the music keeps going",1],["Play the apple sound when an apple is eaten",1],["Play the game-over sound when the snake crashes",1],["Play the booster sound when a booster is collected",1],["Add a mute-effects key (N) and checkbox",1]]},
+  14:{n:"Save game",d:"During a game, click Save; the current state is stored under a chosen save name.",o:"Store snake position, direction, apple, booster, score and settings as JSON.",
+     t:[["Create a GameState class with snake, direction, apple, booster, score and settings",1],["Write it to a JSON file with Gson",1],["Add a Save button that asks for a save name",1]]},
   15:{n:"Choose game save",d:"Click Load; a list of saves is shown. Select one and the game resumes exactly where it was saved.",o:"Show the save name and date, and handle missing or corrupted files.",
-     t:[["Keep all saves in a saves/ folder",0],["Add a Load dialog listing name and date",0],["Show an error for missing or corrupted files",0],["Restore the state and resume the game",0]]},
+     t:[["Keep all saves in a saves/ folder",1],["List saves with name and date in the menu",1],["Show an error for missing or corrupted files",1],["Restore the state and resume the game",1],["Delete a selected save after confirming",1]]},
   19:{n:"JUnit tests",d:"Run the tests from the IDE or build tool; all of them pass.",o:"Test the logic classes, not the Swing drawing.",
-     t:[["Add JUnit 5 to the project (Maven or Gradle)",0],["Test movement and the no-reverse rule",0],["Test collision, including wrapping when looping is on",0],["Test that apples and boosters never spawn on the snake",0],["Test the save and load round trip",0]]},
+     t:[["Add JUnit 5 to the project (Maven)",1],["Test movement and the no-reverse rule",1],["Test collision, including wrapping when looping is on",1],["Test that apples and boosters never spawn on the snake",1],["Test the save and load round trip",1]]},
   20:{n:"Git branching workflow",d:"Open the repo on GitHub; each feature has its own branch and a merged pull request.",o:"main stays playable; work happens on feature branches.",
      t:[["Protect main and create a develop branch",0],["Use one feature/<name> branch per backlog item",0],["Merge through pull requests with a short description",0],["Tag a release when each step is done",0]]}
 };
@@ -201,13 +197,12 @@ var PHASES = [
   {id:"loop",  title:"Looping borders",    desc:"Walls wrap around; can be switched off for solid walls.", items:[10]},
   {id:"music", title:"Game music",         desc:"Looping background music with a mute button.", items:[16]},
   {id:"sfx",   title:"Interaction sounds", desc:"Separate sounds for apple, booster and crash.", items:[17]},
-  {id:"build", title:"Board builder",      desc:"Custom boards with obstacles and fixed apple and booster positions.", items:[12,13]},
-  {id:"save",  title:"Save and load",      desc:"Store a game under a name and resume it later. Needs the board layout if the builder is on.", items:[14,15]},
+  {id:"save",  title:"Save and load",      desc:"Store a game under a name as JSON and resume it later.", items:[14,15]},
   {id:"test",  title:"JUnit testing",      desc:"Automatic tests for the game logic. Run it last so it covers every enabled feature.", items:[19]}
 ];
 
 /* ---------- state ---------- */
-var KEY = "snake-plan-v3";
+var KEY = "snake-plan-v4";
 function defaults(){
   var s = {on:{}, done:{}, ui:{hideDone:false, details:true}};
   PHASES.forEach(function(p){ s.on[p.id] = true; });
