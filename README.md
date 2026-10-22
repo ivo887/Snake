@@ -100,7 +100,6 @@ The working directory for the run configurations should be the project folder (n
 
 The code is split into packages by responsibility. Arrows show which packages import which; the model has no dependencies, so that the game logic can be tested without a window.
 
-```
 
 
 | Package | Class | Responsibility |
@@ -132,55 +131,3 @@ The code is split into packages by responsibility. Arrows show which packages im
 - **Dependency injection.** Instead of having the `GameFrame` create its own settings, saves or sounds, they are created once in `AppContext` and passed to the frame when it's built. This allows `Settings` and `SaveManager` to be faked in tests.
 - **Enums with behaviours.** `Direction.isOpposite()`, `BoosterEffect.tickDelayMs()` and `Sound.fileName()` implement logic specific to each value, which reduces "fragile duplication" and replaces `switch` statements and constants.
 - **Effects last for a number of ticks.** A fast boost or slow down lasts for 50 or 16 ticks, respectively, rather than a wall time of 5 seconds. This makes the effect pause when the game is paused and survive saving/loading.
-
-## Independent topics
-
-### 1. Saving game states to files
-
-The game saves the state and settings to files in JSON format with the [Gson](https://github.com/google/gson) library. See the [Gson guide](https://github.com/google/gson/blob/main/UserGuide.md) for more information.
-
-- `GSON.toJson(state)` serializes a `GameState` into a JSON string, and `GSON.fromJson(text, GameState.class)` deserialize it back. Gson uses the private fields directly.
-- Fields marked `transient` (the random number generator, the actual settings file location) are not saved.
-- `GameState` and `Snake` have a private empty constructor so that Gson can instantiate them.
-- After deserializing, `GameState.isValid()` checks that the snake, apple and booster are within the bounds. If not, it throws an exception, which the menu catches to show an error rather than crashing.
-- Save names are sanitized to prevent writing to an arbitrary place by typing `../some_name`.
-
-Sample save file:
-
-```json
-{
-  "cols": 25,
-  "rows": 25,
-  "looping": true,
-  "snake": {
-    "body": [
-      {"x": 14, "y": 12},
-      {"x": 13, "y": 12},
-      {"x": 12, "y": 12}
-    ],
-    "direction": "RIGHT",
-    "nextDirection": "RIGHT"
-  },
-  "apple": {"x": 3, "y": 20},
-  "booster": {"x": 18, "y": 4},
-  "score": 0,
-  "over": false,
-  "won": false,
-  "effectTicksLeft": 0
-}
-```
-
-### 2. Unit tests
-
-The game logic and persistence layer are covered with unit tests in `src/test/java`. `SnakeTest` only tests the moves, growing, turning and collisions; the actual rendering is handled in `GameController`. Running the tests with `mvn test` should show no failures.
-
-Testing approach:
-
-- `SnakeTest` tests the movement and collisions with `Snake.move(Direction)`
-- `GameStateTest` tests wrapping around the board, collisions, eating, boosters and winning; all package-private setters allow setting up the state
-- `SaveManagerTest`, `SettingsTest` use `@TempDir` from JUnit 5 to write to a temporary folder, not the real `saves/`
-- `assertThrows(IllegalStateException.class, ...)` checks that the menu correctly rejects a corrupted save file
-
-### Other features: MP3 audio playback
-
-Music and effects are played from MP3 files with the jaco-mp3-player library. Each sound has its own `MP3Player`, so that effects do not interfere with music, and missing files are simply skipped.
