@@ -16,7 +16,7 @@ public final class Main {
             } catch (ReflectiveOperationException | UnsupportedLookAndFeelException e) {
                 System.err.println("Using the default look and feel: " + e.getMessage());
             }
-            new MenuFrame(AppContext.createDefault()).setVisible(true);
+            new MenuFrame().setVisible(true);
         });
     }
 }

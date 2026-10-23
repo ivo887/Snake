@@ -69,12 +69,7 @@ public class SaveManager {
         return state;
     }
 
-    // blocks names like ../x
-    static String toFileName(String name) {
-        return name.trim().replaceAll("[^A-Za-z0-9 _-]", "_");
-    }
-
     private File fileFor(String name) {
-        return new File(folder, toFileName(name) + ".json");
+        return new File(folder, name + ".json");
     }
 }

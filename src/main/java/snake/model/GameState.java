@@ -6,6 +6,8 @@ import java.util.Random;
 
 public class GameState {
     public static final int NORMAL_DELAY_MS = 150;
+    public static final int FAST_DELAY_MS = 100;
+    public static final int SLOW_DELAY_MS = 300;
     public static final int EFFECT_DURATION_MS = 5000;
 
     private int cols;
@@ -62,7 +64,7 @@ public class GameState {
             }
         }
 
-        Point next = snake.head().step(snake.applyTurn());
+        Point next = Snake.step(snake.head(), snake.applyTurn());
         if (looping) {
             next = new Point((next.x() + cols) % cols, (next.y() + rows) % rows);
         }
@@ -95,10 +97,13 @@ public class GameState {
     }
 
     public int tickDelayMs() {
-        if (effect == null) {
-            return NORMAL_DELAY_MS;
+        if (effect == BoosterEffect.FAST) {
+            return FAST_DELAY_MS;
         }
-        return effect.tickDelayMs();
+        if (effect == BoosterEffect.SLOW) {
+            return SLOW_DELAY_MS;
+        }
+        return NORMAL_DELAY_MS;
     }
 
     // checks a game loaded from a file
@@ -163,12 +168,12 @@ public class GameState {
         if (effect == null) {
             return 0;
         }
-        return effectTicksLeft * effect.tickDelayMs() / 1000 + 1;
+        return effectTicksLeft * tickDelayMs() / 1000 + 1;
     }
 
     void startEffect(BoosterEffect newEffect) {
         effect = newEffect;
-        effectTicksLeft = EFFECT_DURATION_MS / newEffect.tickDelayMs();
+        effectTicksLeft = EFFECT_DURATION_MS / tickDelayMs();
     }
 
     void setApple(Point apple) {

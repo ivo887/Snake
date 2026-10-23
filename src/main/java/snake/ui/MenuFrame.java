@@ -7,6 +7,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -19,24 +20,27 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-import snake.AppContext;
+import snake.audio.SoundManager;
 import snake.model.BoardSize;
 import snake.model.GameState;
 import snake.persistence.InvalidSaveException;
 import snake.persistence.SaveInfo;
+import snake.persistence.SaveManager;
 import snake.persistence.Settings;
 
 public class MenuFrame extends JFrame {
-    private final AppContext app;
+    static final Settings SETTINGS = Settings.load(new File("settings.json"));
+    static final SaveManager SAVES = new SaveManager(new File("saves"));
+    static final SoundManager SOUNDS = new SoundManager(new File("SoundTrack"), SETTINGS);
+
     private final JList<SaveInfo> saveList = new JList<>();
     private final JLabel highScore = new JLabel("", SwingConstants.CENTER);
     private final JButton loadGame = new JButton("Load Game");
     private final JButton deleteSave = new JButton("Delete Save");
 
-    public MenuFrame(AppContext app) {
+    public MenuFrame() {
         super("Snake - Menu");
-        this.app = app;
-        Settings settings = app.settings();
+        Settings settings = SETTINGS;
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JLabel title = new JLabel("Snake", SwingConstants.CENTER);
@@ -129,7 +133,7 @@ public class MenuFrame extends JFrame {
     }
 
     private void startNewGame() {
-        Settings settings = app.settings();
+        Settings settings = SETTINGS;
         int tiles = settings.getBoardSize().tiles();
         openGame(new GameState(tiles, tiles, settings.isLooping()), GameController.Phase.READY);
     }
@@ -140,7 +144,7 @@ public class MenuFrame extends JFrame {
             return;
         }
         try {
-            openGame(app.saves().load(save), GameController.Phase.PAUSED);
+            openGame(SAVES.load(save), GameController.Phase.PAUSED);
         } catch (InvalidSaveException e) {
             JOptionPane.showMessageDialog(this, "Could not load \"" + save.name() + "\". " + e.getMessage());
             refreshSaves();
@@ -157,19 +161,19 @@ public class MenuFrame extends JFrame {
         if (choice != JOptionPane.YES_OPTION) {
             return;
         }
-        if (!app.saves().delete(save)) {
+        if (!SAVES.delete(save)) {
             JOptionPane.showMessageDialog(this, "Could not delete the save.");
         }
         refreshSaves();
     }
 
     private void openGame(GameState state, GameController.Phase startPhase) {
-        new GameFrame(app, state, startPhase).setVisible(true);
+        new GameFrame(state, startPhase).setVisible(true);
         dispose();
     }
 
     private void refreshSaves() {
-        saveList.setListData(app.saves().list().toArray(new SaveInfo[0]));
+        saveList.setListData(SAVES.list().toArray(new SaveInfo[0]));
         updateButtons();
     }
 
@@ -180,7 +184,7 @@ public class MenuFrame extends JFrame {
     }
 
     private void showHighScore() {
-        BoardSize size = app.settings().getBoardSize();
-        highScore.setText("High score on " + size + ": " + app.settings().getHighScore(size.tiles()));
+        BoardSize size = SETTINGS.getBoardSize();
+        highScore.setText("High score on " + size + ": " + SETTINGS.getHighScore(size.tiles()));
     }
 }

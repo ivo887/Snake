@@ -204,7 +204,8 @@ run this way, because they need JUnit; use one of the options A-E for the tests.
 
 - `settings.json`: menu settings (borders, board size, music, effects) and the high score per
   board size. To reset them, delete the file.
-- `saves/*.json`: saved games. Delete them in the menu.
+- `saves/*.json`: saved games, one file per save, named after the save name that was typed in.
+  Delete them in the menu.
 
 Both are created in the working directory and are ignored by git.
 
@@ -308,23 +309,28 @@ Each issue lists the error message or symptom, the cause and the fix.
    - Cause: the file is probably corrupted or was modified.
    - Fix: delete it in the menu.
 
+6. "Could not save the game" when saving
+   - Cause: the save name is used as the file name, so characters that are not allowed in file
+     names (such as `/ \ : * ? " < > |` on Windows) make the save fail.
+   - Fix: use a name with only letters, digits, spaces, `-` and `_`.
+
 ## 7. Project structure
 
 The code is split into packages by responsibility.
 
 - `snake`
   - `Main`: entry point; sets the look and feel and opens the menu.
-  - `AppContext`: holds the shared services (settings, saves, sounds) injected into windows.
 - `snake.model`
   - `GameState`: all game logic: movement, eating, boosters, collisions, winning.
   - `Snake`: the snake's body and direction.
-  - `Point`: an immutable position on the board (a `record`).
-  - `Direction`: directions and their offsets (an `enum`).
-  - `BoosterEffect`: fast / slow effect with its tick delay in milliseconds.
+  - `Point`: a position on the board.
+  - `Direction`: the four directions (an `enum`).
+  - `BoosterEffect`: fast / slow effect (an `enum`).
   - `GameEvent`: describes what happens on each game tick (apple, booster, etc.).
   - `BoardSize`: board sizes offered in the menu.
 - `snake.ui`
-  - `MenuFrame`: menu: new game, load game, settings.
+  - `MenuFrame`: menu: new game, load game, settings. Also holds the shared `Settings`,
+    `SaveManager` and `SoundManager` as static fields.
   - `GameFrame`: game window: toolbar, board, keys, save dialog.
   - `BoardPanel`: draws the board and the start / pause / game over screens.
   - `GameController`: updates the game state on a `javax.swing.Timer`, handles pause and game
@@ -344,15 +350,16 @@ The code is split into packages by responsibility.
   the rules; `BoardPanel` only draws the board and does not receive input; `GameController`
   connects them and updates the game on a timer. `GameState.tick()` returns a `GameEvent`, which
   allows the controller to choose what sound to play without coupling to audio.
-- **Encapsulation.** Fields are private by default. The snake's body is a list of `Point`s, an
-  immutable `record`, and the `Snake.body()` method returns a defensive copy, so that other
+- **Encapsulation.** Fields are private by default. The snake's body is a list of `Point`s, which
+  have no setters, and the `Snake.body()` method returns a defensive copy, so that other
   classes cannot modify the game state.
-- **Dependency injection.** Instead of having the `GameFrame` create its own settings, saves or
-  sounds, they are created once in `AppContext` and passed to the frame when it's built. This
-  allows `Settings` and `SaveManager` to be faked in tests.
-- **Enums with behaviours.** `Direction.isOpposite()`, `BoosterEffect.tickDelayMs()` and
-  `Sound.fileName()` implement logic specific to each value, which reduces "fragile duplication"
-  and replaces `switch` statements and constants.
+- **Shared objects as static fields.** `Settings`, `SaveManager` and `SoundManager` are created
+  once as static fields of `MenuFrame`, so the menu and game windows use the same settings and
+  music player. `SaveManager` and `Settings` take a folder/file in their constructor, so tests
+  can point them at a temporary folder.
+- **Simple enums.** `Direction` and `BoosterEffect` are plain enums. `Snake` uses a `switch` to
+  move a point one cell in a direction, and `GameState` has constants for the fast and slow
+  tick delays.
 - **Effects last for a number of ticks.** A fast boost or slow down lasts for 50 or 16 ticks,
   respectively, rather than a wall time of 5 seconds. This makes the effect pause when the game
   is paused and survive saving/loading.

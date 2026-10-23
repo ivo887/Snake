@@ -90,9 +90,4 @@ class SaveManagerTest {
         saves.delete(saves.list().get(0));
         assertTrue(saves.list().isEmpty());
     }
-
-    @Test
-    void unsafeCharactersInNamesAreReplaced() {
-        assertEquals("___secret", SaveManager.toFileName("../secret"));
-    }
 }

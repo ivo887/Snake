@@ -5,8 +5,29 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import snake.model.GameState;
 
-// game is null when the file could not be read
-public record SaveInfo(String name, File file, GameState game) {
+public class SaveInfo {
+    private final String name;
+    private final File file;
+    private final GameState game; // null when the file could not be read
+
+    public SaveInfo(String name, File file, GameState game) {
+        this.name = name;
+        this.file = file;
+        this.game = game;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public File file() {
+        return file;
+    }
+
+    public GameState game() {
+        return game;
+    }
+
     @Override
     public String toString() {
         String date = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date(file.lastModified()));

@@ -15,9 +15,34 @@ public class Snake {
     public Snake(Point head, Direction direction, int length) {
         this.direction = direction;
         this.nextDirection = direction;
+        Point cell = head;
         for (int i = 0; i < length; i++) {
-            body.add(new Point(head.x() - direction.dx() * i, head.y() - direction.dy() * i));
+            body.add(cell);
+            cell = step(cell, opposite(direction));
         }
+    }
+
+    // the cell next to "from" in the given direction
+    static Point step(Point from, Direction direction) {
+        int x = from.x();
+        int y = from.y();
+        switch (direction) {
+            case UP -> y--;
+            case DOWN -> y++;
+            case LEFT -> x--;
+            case RIGHT -> x++;
+            default -> { }
+        }
+        return new Point(x, y);
+    }
+
+    static Direction opposite(Direction direction) {
+        return switch (direction) {
+            case UP -> Direction.DOWN;
+            case DOWN -> Direction.UP;
+            case LEFT -> Direction.RIGHT;
+            case RIGHT -> Direction.LEFT;
+        };
     }
 
     public Point head() {
@@ -42,7 +67,7 @@ public class Snake {
 
     // only one turn per tick
     public boolean turn(Direction newDirection) {
-        if (nextDirection != direction || newDirection.isOpposite(direction)) {
+        if (nextDirection != direction || newDirection == opposite(direction)) {
             return false;
         }
         nextDirection = newDirection;

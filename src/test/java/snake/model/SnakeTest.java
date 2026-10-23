@@ -37,9 +37,14 @@ class SnakeTest {
 
     @Test
     void oppositeDirections() {
-        assertTrue(Direction.UP.isOpposite(Direction.DOWN));
-        assertTrue(Direction.LEFT.isOpposite(Direction.RIGHT));
-        assertFalse(Direction.UP.isOpposite(Direction.LEFT));
+        assertEquals(Direction.DOWN, Snake.opposite(Direction.UP));
+        assertEquals(Direction.RIGHT, Snake.opposite(Direction.LEFT));
+    }
+
+    @Test
+    void stepMovesOneCell() {
+        assertEquals(new Point(5, 4), Snake.step(new Point(5, 5), Direction.UP));
+        assertEquals(new Point(6, 5), Snake.step(new Point(5, 5), Direction.RIGHT));
     }
 
     @Test

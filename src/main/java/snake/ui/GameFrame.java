@@ -16,13 +16,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
-import snake.AppContext;
 import snake.model.BoosterEffect;
 import snake.model.Direction;
 import snake.model.GameState;
 
 public class GameFrame extends JFrame {
-    private final AppContext app;
     private final GameController controller;
     private final BoardPanel board;
     private final JButton saveButton = new JButton("Save");
@@ -32,10 +30,9 @@ public class GameFrame extends JFrame {
     private final JLabel effectLabel = new JLabel();
     private final JLabel soundLabel = new JLabel();
 
-    public GameFrame(AppContext app, GameState state, GameController.Phase startPhase) {
+    public GameFrame(GameState state, GameController.Phase startPhase) {
         super("Snake");
-        this.app = app;
-        controller = new GameController(state, startPhase, app.settings(), app.sounds(), this::refresh);
+        controller = new GameController(state, startPhase, MenuFrame.SETTINGS, MenuFrame.SOUNDS, this::refresh);
         board = new BoardPanel(controller);
 
         saveButton.setFocusable(false);
@@ -103,19 +100,23 @@ public class GameFrame extends JFrame {
 
     private void refresh() {
         GameState state = controller.state();
-        int high = Math.max(state.score(), app.settings().getHighScore(state.cols()));
+        int high = Math.max(state.score(), MenuFrame.SETTINGS.getHighScore(state.cols()));
         scoreLabel.setText("Score: " + state.score() + "    High: " + high);
 
         BoosterEffect effect = state.effect();
         if (effect != null) {
-            effectLabel.setText(effect.label() + " " + state.effectSecondsLeft() + "s");
+            String text = "Slow down";
+            if (effect == BoosterEffect.FAST) {
+                text = "Speed up";
+            }
+            effectLabel.setText(text + " " + state.effectSecondsLeft() + "s");
             effectLabel.setForeground(Theme.boardColor(effect));
         } else {
             effectLabel.setText("");
         }
 
-        String music = app.settings().isMusicOn() ? "on" : "off";
-        String effects = app.settings().isEffectsOn() ? "on" : "off";
+        String music = MenuFrame.SETTINGS.isMusicOn() ? "on" : "off";
+        String effects = MenuFrame.SETTINGS.isEffectsOn() ? "on" : "off";
         soundLabel.setText("Music " + music + "  |  Effects " + effects);
 
         if (controller.phase() == GameController.Phase.PAUSED) {
@@ -137,7 +138,7 @@ public class GameFrame extends JFrame {
         if (name == null || name.isBlank()) {
             return false;
         }
-        if (app.saves().exists(name)) {
+        if (MenuFrame.SAVES.exists(name)) {
             int choice = JOptionPane.showConfirmDialog(this, "This save already exists. Replace it?", "Save Game",
                     JOptionPane.YES_NO_OPTION);
             if (choice != JOptionPane.YES_OPTION) {
@@ -145,7 +146,7 @@ public class GameFrame extends JFrame {
             }
         }
         try {
-            app.saves().save(name, controller.state());
+            MenuFrame.SAVES.save(name, controller.state());
             JOptionPane.showMessageDialog(this, "Game saved.");
             return true;
         } catch (IOException e) {
@@ -168,6 +169,6 @@ public class GameFrame extends JFrame {
         }
         controller.stop();
         dispose();
-        new MenuFrame(app).setVisible(true);
+        new MenuFrame().setVisible(true);
     }
 }
