@@ -2,8 +2,6 @@
 
 A Snake game written in Java with Swing.
 
-Plan page (step-by-step plan and product backlog): https://ivo887.github.io/Snake/
-
 Contents:
 
 1. Features
